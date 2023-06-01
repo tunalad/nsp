@@ -1,12 +1,12 @@
 #!/usr/bin/env python
-# biblegateway.com scrapper, main logic in main()
-# tested only with NSP, you probably have to make some changes in `get_verse` and `get_verses`
-# this script takes ~12 minutes to scrap the whole bible
+# pylint: disable=consider-using-sys-exit
+# biblegateway.com scrapper (best out there afaik), main logic in main()
 
 import re
 import requests
 from pprint import pprint
 from bs4 import BeautifulSoup as bs
+from srtools import cyrillic_to_latin as to_lat, latin_to_cyrillic as to_cyr
 
 def get_soup(url):# {{{
     # main soup
@@ -14,7 +14,7 @@ def get_soup(url):# {{{
     soup = bs(response.content, "html.parser")
     return soup# }}}
 
-def get_passasge(passage, bible_version = "nsp"):# {{{
+def get_passasge(passage, bible_version = "niv"):# {{{
     # verses soup
     base_url= "https://www.biblegateway.com"
 
@@ -90,6 +90,7 @@ def get_books_list(version):# {{{
 def get_short_name(book_name):# {{{
     # shorthands for books
     book_map = {
+        # english books (kjv)
         'Genesis': 'Ge',
         'Exodus': 'Exo',
         'Leviticus': 'Lev',
@@ -157,7 +158,74 @@ def get_short_name(book_name):# {{{
         '2 John': '2Jn',
         '3 John': '3Jn',
         'Jude': 'Jude',
-        'Revelation': 'Rev'
+        'Revelation': 'Rev',
+        # serbian books (nsp)
+        '1 Mojsijeva': '1Mo',
+        '2 Mojsijeva': '2Mo',
+        '3 Mojsijeva': '3Mo',
+        '4 Mojsijeva': '4Mo',
+        '5 Mojsijeva': '5Mo',
+        'Knjiga Isusa Navina': 'JNav',
+        'Knjiga o sudijama': 'Sud',
+        'Knjiga o Ruti': 'Rut',
+        '1 Knjiga Samuilova': '1Sam',
+        '2 Knjiga Samuilova': '2Sam',
+        '1 Knjiga o carevima': '1Car',
+        '2 Knjiga o carevima': '2Car',
+        '1 Knjiga dnevnika': '1Dne',
+        '2 Knjiga dnevnika': '2Dne',
+        'Jezdrina': 'Jez',
+        'Knjiga Nemijina': 'Nem',
+        'Knjiga o Jestiri': 'Jest',
+        'Knjiga o Jovu': 'Jov',
+        'Psalmi': 'Psm',
+        'Priče Solomonove': 'Prc',
+        'Knjiga propovednikova': 'Prop',
+        'Pesma nad pesmama': 'PnP',
+        'Knjiga proroka Isaije': 'Isa',
+        'Knjiga proroka Jeremije': 'Jer',
+        'Plač Jeremijin': 'PlaJer',
+        'Knjiga proroka Jezekilja': 'Eze',
+        'Knjiga proroka Danila': 'Dan',
+        'Knjiga proroka Osije': 'Osi',
+        'Knjiga proroka Joila': 'Joel',
+        'Knjiga proroka Amosa': 'Amos',
+        'Knjiga proroka Avdije': 'Avd',
+        'Knjiga proroka Jone': 'Jon',
+        'Knjiga proroka Miheja': 'Mih',
+        'Knjiga proroka Nauma': 'Nah',
+        'Knjiga proroka Avakuma': 'Avk',
+        'Knjiga proroka Sofonije': 'Sof',
+        'Knjiga proroka Ageja': 'Ag',
+        'Knjiga proroka Zaharije': 'Zah',
+        'Knjiga proroka Malahije': 'Mal',
+        'Matej': 'Mat',
+        'Marko': 'Mark',
+        'Luka': 'Luk',
+        'Jovan': 'Joh',
+        'Dela apostolska': 'Dap',
+        'Rimljanima': 'Rom',
+        '1 Korinćanima': '1Kor',
+        '2 Korinćanima': '2Kor',
+        'Galatima': 'Gal',
+        'Efescima': 'Efe',
+        'Filipljanima': 'Fil',
+        'Kološanima': 'Kol',
+        '1 Solunjanima': '1Sol',
+        '2 Solunjanima': '2Sol',
+        '1 Timoteju': '1Tim',
+        '2 Timoteju': '2Tim',
+        'Titu': 'Tit',
+        'Filimonu': 'Fil',
+        'Jevrejima': 'Heb',
+        'Jakovljeva': 'Jak',
+        '1 Petrova': '1Pet',
+        '2 Petrova': '2Pet',
+        '1 Jovanova': '1Jov',
+        '2 Jovanova': '2Jov',
+        '3 Jovanova': '3Jov',
+        'Judina': 'Jud',
+        'Otkrivenje': 'Otk',
     }
     
     return book_map.get(book_name, 'Unknown')# }}}
@@ -176,10 +244,10 @@ def append_file(file_path, text):# {{{
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 
 def main():
-    TSV_FILE = "nsp.tsv"
     bible_version = "NSP" #"ERV-SR"
+    TSV_FILE = "nsp.tsv"
+    books = get_books_list("King-James-Version-KJV-Bible") # value from biblegateway.com/versions/...
     #books = get_books_list("New-Serbian-Translation-NSP-Bible")
-    books = get_books_list("King-James-Version-KJV-Bible") # value from biblegateway.com/versions/_____
 
     # iterates through all the books and chapters, exports them in tsv
     for book in books:
@@ -192,17 +260,17 @@ def main():
             for v in verses:
                 verse_index = verses.index(v)+1
                 # tsv file format
-                line = (book["name"] +
-                      "\t" + 
-                      get_short_name(book["name"]) +
-                      "\t" + 
-                      str(book_index) +
-                      "\t" + 
-                      str(ch+1) +
-                      "\t" + 
-                      str(verse_index) +
-                      "\t" + 
-                      v)
+                line = (to_lat(book["name"]) +
+                    "\t" + 
+                    get_short_name(to_lat(book["name"])) +
+                    "\t" + 
+                    str(book_index) +
+                    "\t" + 
+                    str(ch+1) +
+                    "\t" + 
+                    str(verse_index) +
+                    "\t" + 
+                    to_lat(v))
                 print(line)
                 append_file(TSV_FILE, line)
 
