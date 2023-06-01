@@ -33,9 +33,8 @@ Forked from https://github.com/LukeSmithxyz/kjv.git with some changes made for s
               All verses in a chapter of a book that match a pattern
 ```
 ## Notes
+- All books are in latin
 - The Bible was obtained via a data scraper I've written (found in `src`), so there might be some mistakes in the text.
-- All books are named with their English titles. This is primarily because not many people are willing to set up their keyboards in Cyrillic. I might write Serbian titles in Latin later.
-- The `src` directory contains source code for scraping from BibleGateway. 
 
 ## Install
 Install `nsp` by running:
