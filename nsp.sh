@@ -33,7 +33,7 @@ rand_verse() {
 
         # Apply text wrapping if not disabled
         if [ -z "$KJV_NOLINEWRAP" ]; then
-            echo "$random_verse" | fold -w 72 -s | sed -e '2,$s/^/        /' | ${PAGER}
+            echo "$random_verse" | fold -w 72 -s | sed -e '3,$s/^/        /' | ${PAGER}
         else
             echo "$random_verse" | ${PAGER}
         fi
