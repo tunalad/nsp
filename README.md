@@ -8,6 +8,7 @@ Forked from https://github.com/LukeSmithxyz/kjv.git with some changes made for s
     usage: ./nsp [flags] [reference...]
 
       -l      list books
+      -r      random verse
       -W      no line wrap
       -h      show help
 
