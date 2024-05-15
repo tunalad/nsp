@@ -1,4 +1,5 @@
 #!/bin/sh
+# vim: set tabstop=8 shiftwidth=8 noexpandtab:
 
 SELF="$0"
 
@@ -16,6 +17,10 @@ if [ -z "$PAGER" ]; then
 		PAGER="cat"
 	fi
 fi
+
+list_books() {
+	get_data $TSV_FILE | awk -v cmd=list "$(get_data $AWK_FILE)"
+}
 
 rand_verse() {
     # Get the total number of lines (verses) in the dataset
@@ -71,7 +76,12 @@ show_help() {
 	echo "          All verses in a book that match a pattern"
 	echo "      <Book>:<Chapter>/<Search>"
 	echo "          All verses in a chapter of a book that match a pattern"
-	exit 2
+	echo 
+	echo "  Interactive mode commands:"
+	echo "      list"
+	echo "	        list books"
+	echo "      help"
+	echo "	        show help"
 }
 
 while [ $# -gt 0 ]; do
@@ -86,7 +96,7 @@ while [ $# -gt 0 ]; do
 		break
 	elif [ "$1" = "-l" ]; then
 		# List all book names with their abbreviations
-		get_data $TSV_FILE | awk -v cmd=list "$(get_data $AWK_FILE)"
+		list_books
 		exit
         elif [ "$1" = "-r" ]; then
                 # Return random verse
@@ -97,6 +107,7 @@ while [ $# -gt 0 ]; do
 		shift
 	elif [ "$1" = "-h" ] || [ "$isFlag" -eq 1 ]; then
 		show_help
+		exit 2
 	else
 		break
 	fi
@@ -114,11 +125,23 @@ if [ $# -eq 0 ]; then
 
 	# Interactive mode
 	while true; do
-		printf "nsp> "
+	        printf "nsp> "
 		if ! read -r ref; then
 			break
 		fi
-		get_data $TSV_FILE | awk -v cmd=ref -v ref="$ref" "$(get_data $AWK_FILE)" | ${PAGER}
+
+
+                case "$ref" in 
+                        list)
+                                list_books
+                                ;;
+			help)
+				show_help
+				;;
+			*)
+				get_data $TSV_FILE | awk -v cmd=ref -v ref="$ref" "$(get_data $AWK_FILE)" | ${PAGER}
+				;;
+		esac
 	done
 	exit 0
 fi
