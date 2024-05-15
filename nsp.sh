@@ -23,28 +23,28 @@ list_books() {
 }
 
 rand_verse() {
-    # Get the total number of lines (verses) in the dataset
-    total_verses=$(get_data $TSV_FILE | wc -l)
+	# Get the total number of lines (verses) in the dataset
+	total_verses=$(get_data $TSV_FILE | wc -l)
 
     # Check if total_verses is greater than 0
     if [ "$total_verses" -gt 0 ]; then
-        # Generate a random line number within the total range
-        random_line_number=$((RANDOM % total_verses + 1))
+	    # Generate a random line number within the total range
+	    random_line_number=$((RANDOM % total_verses + 1))
 
-        # Fetch the random verse using awk
-        random_verse=$(get_data $TSV_FILE | awk -F'\t' -v line_number="$random_line_number" 'NR == line_number {
-            printf "%s\n%s:%s\t%s\n", $1, $4, $5, $6
-        }')
+	# Fetch the random verse using awk
+	random_verse=$(get_data $TSV_FILE | awk -F'\t' -v line_number="$random_line_number" 'NR == line_number {
+	printf "%s\n%s:%s\t%s\n", $1, $4, $5, $6
+}')
 
-        # Apply text wrapping if not disabled
-        if [ -z "$KJV_NOLINEWRAP" ]; then
-            echo "$random_verse" | fold -w 72 -s | sed -e '3,$s/^/        /' | ${PAGER}
-        else
-            echo "$random_verse" | ${PAGER}
-        fi
-    else
-        echo "No verses found in the dataset."
-    fi
+	# Apply text wrapping if not disabled
+	if [ -z "$KJV_NOLINEWRAP" ]; then
+		echo "$random_verse" | fold -w 72 -s | sed -e '3,$s/^/        /' | ${PAGER}
+	else
+		echo "$random_verse" | ${PAGER}
+	fi
+else
+	echo "No verses found in the dataset."
+	fi
 }
 
 show_help() {
@@ -53,7 +53,7 @@ show_help() {
 	echo
 	echo "  -l      list books"
 	echo "  -r      random verse"
-        echo "  -W      no line wrap"
+	echo "  -W      no line wrap"
 	echo "  -h      show help"
 	echo
 	echo "  Reference types:"
@@ -98,10 +98,10 @@ while [ $# -gt 0 ]; do
 		# List all book names with their abbreviations
 		list_books
 		exit
-        elif [ "$1" = "-r" ]; then
-                # Return random verse
-                rand_verse | cat
-                exit
+	elif [ "$1" = "-r" ]; then
+		# Return random verse
+		rand_verse | cat
+		exit
 	elif [ "$1" = "-W" ]; then
 		export KJV_NOLINEWRAP=1
 		shift
@@ -125,16 +125,16 @@ if [ $# -eq 0 ]; then
 
 	# Interactive mode
 	while true; do
-	        printf "nsp> "
+		printf "nsp> "
 		if ! read -r ref; then
 			break
 		fi
 
 
-                case "$ref" in 
-                        list)
-                                list_books
-                                ;;
+		case "$ref" in 
+			list)
+				list_books
+				;;
 			help)
 				show_help
 				;;

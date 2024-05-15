@@ -1,11 +1,13 @@
-# nsp -- Serbian Bible on the Command Line
+# nsp - Serbian Bible on the Command Line
+
 A command-line tool for searching and reading the Bible in the new Serbian translation.
 
 Forked from https://github.com/LukeSmithxyz/kjv.git with some changes made for setting up other translations.
 
 ## Usage
+
 ```
-    usage: ./nsp [flags] [reference...]
+    usage: nsp [flags] [reference...]
 
       -l      list books
       -r      random verse
@@ -32,12 +34,21 @@ Forked from https://github.com/LukeSmithxyz/kjv.git with some changes made for s
               All verses in a book that match a pattern
           <Book>:<Chapter>/<Search>
               All verses in a chapter of a book that match a pattern
+
+      Interactive mode commands:
+          list
+                list books
+          help
+                show help
 ```
+
 ## Notes
-- All books are in latin
-- The Bible was obtained via a data scraper I've written (found in `src`), so there might be some mistakes in the text.
+
+-   All books are in latin
+-   The Bible was obtained via a data scraper I've written (found in `src`), so there might be some mistakes in the text.
 
 ## Install
+
 Install `nsp` by running:
 
 ```
