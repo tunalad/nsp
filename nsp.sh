@@ -23,12 +23,13 @@ list_books() {
 }
 
 rand_verse() {
-	total_verses=$(get_data $TSV_FILE | wc -l)
+	tsv_verses=$(get_data $TSV_FILE)
+	total_verses=$(cat $TSV_FILE | wc -l)
 
 	if [ "$total_verses" -gt 0 ]; then
 		random_line_number=$(($(od -An -tuL -N4 /dev/urandom | tr -d ' ') % total_verses + 1))
 
-		random_verse=$(get_data $TSV_FILE | awk -F'\t' -v line_number="$random_line_number" 'NR == line_number {
+		random_verse=$(cat $TSV_FILE | awk -F'\t' -v line_number="$random_line_number" 'NR == line_number {
 	printf "%s\n%s:%s\t%s\n", $1, $4, $5, $6
 }')
 
