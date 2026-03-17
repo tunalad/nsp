@@ -1,5 +1,5 @@
 #!/bin/sh
-# vim: set tabstop=8 shiftwidth=8 noexpandtab:
+# vim: set tabstop=4 shiftwidth=4 noexpandtab:
 
 SELF="$0"
 
@@ -23,20 +23,15 @@ list_books() {
 }
 
 rand_verse() {
-	# Get the total number of lines (verses) in the dataset
 	total_verses=$(get_data $TSV_FILE | wc -l)
 
-	# Check if total_verses is greater than 0
 	if [ "$total_verses" -gt 0 ]; then
-		# Generate a random line number within the total range
 		random_line_number=$(($(od -An -tuL -N4 /dev/urandom | tr -d ' ') % total_verses + 1))
 
-		# Fetch the random verse using awk
 		random_verse=$(get_data $TSV_FILE | awk -F'\t' -v line_number="$random_line_number" 'NR == line_number {
 	printf "%s\n%s:%s\t%s\n", $1, $4, $5, $6
 }')
 
-		# Apply text wrapping if not disabled
 		if [ -z "$KJV_NOLINEWRAP" ]; then
 			echo "$random_verse" | fold -w 72 -s | sed -e '3,$s/^/        /' | ${PAGER}
 		else
@@ -95,11 +90,9 @@ while [ $# -gt 0 ]; do
 		shift
 		break
 	elif [ "$1" = "-l" ]; then
-		# List all book names with their abbreviations
 		list_books
 		exit
 	elif [ "$1" = "-r" ]; then
-		# Return random verse
 		rand_verse | cat
 		exit
 	elif [ "$1" = "-W" ]; then
@@ -123,7 +116,6 @@ if [ $# -eq 0 ]; then
 		show_help
 	fi
 
-	# Interactive mode
 	while true; do
 		printf "nsp> "
 		if ! read -r ref; then
