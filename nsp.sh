@@ -7,7 +7,7 @@ TSV_FILE=nsp.tsv
 AWK_FILE=nsp.awk
 
 get_data() {
-	sed '1,/^#EOF$/d' < "$SELF" | tar xzf - -O "$1"
+	sed '1,/^#EOF$/d' <"$SELF" | tar xzf - -O "$1"
 }
 
 if [ -z "$PAGER" ]; then
@@ -26,24 +26,24 @@ rand_verse() {
 	# Get the total number of lines (verses) in the dataset
 	total_verses=$(get_data $TSV_FILE | wc -l)
 
-    # Check if total_verses is greater than 0
-    if [ "$total_verses" -gt 0 ]; then
-	    # Generate a random line number within the total range
-	    random_line_number=$((RANDOM % total_verses + 1))
+	# Check if total_verses is greater than 0
+	if [ "$total_verses" -gt 0 ]; then
+		# Generate a random line number within the total range
+		random_line_number=$(($(od -An -tuL -N4 /dev/urandom | tr -d ' ') % total_verses + 1))
 
-	# Fetch the random verse using awk
-	random_verse=$(get_data $TSV_FILE | awk -F'\t' -v line_number="$random_line_number" 'NR == line_number {
+		# Fetch the random verse using awk
+		random_verse=$(get_data $TSV_FILE | awk -F'\t' -v line_number="$random_line_number" 'NR == line_number {
 	printf "%s\n%s:%s\t%s\n", $1, $4, $5, $6
 }')
 
-	# Apply text wrapping if not disabled
-	if [ -z "$KJV_NOLINEWRAP" ]; then
-		echo "$random_verse" | fold -w 72 -s | sed -e '3,$s/^/        /' | ${PAGER}
+		# Apply text wrapping if not disabled
+		if [ -z "$KJV_NOLINEWRAP" ]; then
+			echo "$random_verse" | fold -w 72 -s | sed -e '3,$s/^/        /' | ${PAGER}
+		else
+			echo "$random_verse" | ${PAGER}
+		fi
 	else
-		echo "$random_verse" | ${PAGER}
-	fi
-else
-	echo "No verses found in the dataset."
+		echo "No verses found in the dataset."
 	fi
 }
 
@@ -76,7 +76,7 @@ show_help() {
 	echo "          All verses in a book that match a pattern"
 	echo "      <Book>:<Chapter>/<Search>"
 	echo "          All verses in a chapter of a book that match a pattern"
-	echo 
+	echo
 	echo "  Interactive mode commands:"
 	echo "      list"
 	echo "	        list books"
@@ -130,17 +130,16 @@ if [ $# -eq 0 ]; then
 			break
 		fi
 
-
-		case "$ref" in 
-			list)
-				list_books
-				;;
-			help)
-				show_help
-				;;
-			*)
-				get_data $TSV_FILE | awk -v cmd=ref -v ref="$ref" "$(get_data $AWK_FILE)" | ${PAGER}
-				;;
+		case "$ref" in
+		list)
+			list_books
+			;;
+		help)
+			show_help
+			;;
+		*)
+			get_data $TSV_FILE | awk -v cmd=ref -v ref="$ref" "$(get_data $AWK_FILE)" | ${PAGER}
+			;;
 		esac
 	done
 	exit 0
